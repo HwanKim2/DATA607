@@ -1,21 +1,22 @@
 ---
-title: "Data 607: Week 1 Assignment"
+title: "DATA607: Week 1 Assignment"
 author: "DH Kim"
 date: "`r Sys.Date()`"
 output: openintro::lab_report
 ---
 
 ### Overview
-The fivethirtyeight.com provides datasets for their analysis and storytelling. They have [a story on urbanization and election](https://fivethirtyeight.com/features/how-urban-or-rural-is-your-state-and-what-does-that-mean-for-the-2020-election/), great thinking linking the two interesting issues. Between two datasets provided for the article, I chose one for every census tract to do some data work.
+The fivethirtyeight.com provides datasets for their analysis and storytelling. They have [a story on urbanization and election](https://fivethirtyeight.com/features/how-urban-or-rural-is-your-state-and-what-does-that-mean-for-the-2020-election/), great thinking linking the two interesting issues. Among two datasets provided for the article, I chose one for every census tract (named urbanization-census-tract.csv) to do some data work.
 
-### Data Loading and Checking.
+### Data Loading and Checking
+
 ```{r}
 UrbanIndexRaw <- 
   read.csv(url("https://raw.githubusercontent.com/fivethirtyeight/data/master/urbanization-index/urbanization-census-tract.csv"))
 dim(UrbanIndexRaw)
 head(UrbanIndexRaw)
 ```
-The raw data I imported has 8 variables for 73280 census tracts. Based on the resulting dataframe and [its details on their git repo]( https://github.com/fivethirtyeight/data/tree/master/urbanization-index),I change column names into a more meaningful way only for the selected columns below. Note that the dataset has urbanization data only, so election data is needed for future work. 
+The raw data I imported has 8 variables for 73280 census tracts. Based on the resulting dataframe and [its details on their git repo]( https://github.com/fivethirtyeight/data/tree/master/urbanization-index), I change column names into a more meaningful way only for the selected columns below. Note that the dataset has urbanization data only, so election data is needed for future work. 
 
 ### Data Subsetting
 ```{r}
@@ -30,9 +31,10 @@ print(cbind(VariablesKeep,VariablesName))
 ```{r}
 UrbanIndex <- UrbanIndexRaw[,VariablesKeep]
 names(UrbanIndex) <- VariablesName
+head(UrbanIndex)
 rm(UrbanIndexRaw)
 ```
-Now data is ready to generate your great stories.
+Compare it to the raw data. Now data is ready to generate your great stories.
 
 ### Findings and Conclusions
 In the Week 1 Assignment, I take a close look at an urbanization dataset as a sample of data. It is great to know that data can be used to provide great stories. As shown in this Assignment, data work is very useful to do that. I think that This work may serve as a baseline work and can be extend for thinking and analysis. I need to be merged to an election data for the article. 
