@@ -34,7 +34,11 @@ names(UrbanIndex) <- VariablesName
 head(UrbanIndex)
 rm(UrbanIndexRaw)
 ```
-Compare it to the raw data. Now data is ready to generate your great stories.
+Compare it to the raw data. Now data is ready to generate your great stories. The summary statistics of the data is as follows:
+
+```{r summary}
+summary(UrbanIndex)
+```
 
 ### Findings and Conclusions
-In the Week 1 Assignment, I take a close look at an urbanization dataset as a sample of data. It is great to know that data can be used to provide great stories. As shown in this Assignment, data work is very useful to do that. I think that This work may serve as a baseline work and can be extend for thinking and analysis. I need to be merged to an election data for the article. 
+In the Week 1 Assignment, I take a close look at an urbanization dataset as a sample of data. It is great to know that data can be used to provide great stories. As shown in this Assignment, data work is very useful to do that. I think that This work may serve as a baseline work and can be extended for urbanization-related thinking and analysis. For example, an election data can be combined for the article.
