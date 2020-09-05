@@ -32,9 +32,9 @@ ARainyDayInNewYork&2&3&3&2&2\\
 
 \vspace{1em}
 
-The database used is Oracle database 11g Express Edition with SQL developer which can be freely downloaded from their websites. I think that it should be done with other databases, MySQL and PostgreSQL, and also R markdown which I am working with. The R markdown with DBI connection would be ideal but it remains as future work. Here, we will work with Oracle SQL developer with sql queries to create the movie database. The three steps do the work: (1) Create a user named \textit{moviedb}, (2) Create three tables named \textit{moving\_ratings}, \textit{friends}, and \textit{movies} and (3) insert data into relevant tables. It can be done by executing two sql files (\textit{setup\_movie\_db.sql} and \textit{moviedb.sql}) attached. The more detailed procedure is as follows:
+The database used is Oracle database 11g Express Edition with SQL developer which can be freely downloaded from their websites. I think that it should be done with other databases, MySQL and PostgreSQL, and also R markdown which I am working with. The R markdown with DBI connection would be ideal but it remains as future work. Here, we will work with Oracle SQL developer with sql queries to create the movie database. The three steps do the work: (1) Create a user named \textit{moviedb}, (2) Create three tables named \textit{moving\_ratings}, \textit{friends}, and \textit{movies} and (3) insert data into relevant tables. It can be done by executing two sql files (\textit{setup\_moviedb.sql} and \textit{moviedb.sql}) attached. The more detailed procedure is as follows:
 
-Step 1: To create a user, connect to the 'system' in Oracle SQL developer. It can be done with the green "+" icon. Then in the worksheet, execute \textit{setup\_movie\_db.sql} file. Or type the "CREATE USER" command and press the green forward arrow to run it. 
+Step 1: To create a user, connect to the 'system' in Oracle SQL developer. It can be done with the green "+" icon. Then in the worksheet, execute \textit{setup\_moviedb.sql} file. Or type the "CREATE USER" command and press the green forward arrow to run it. 
 
 Step 2: Connect to the \textit{moviedb} user created.
 
