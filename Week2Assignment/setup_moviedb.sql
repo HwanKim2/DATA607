@@ -1,0 +1,7 @@
+DROP USER moviedb CASCADE;
+
+CREATE USER moviedb IDENTIFIED BY moviedb DEFAULT TABLESPACE users;
+
+GRANT ALL PRIVILEGES TO moviedb;
+
+CONNECT moviedb/moviedb;
