@@ -1,17 +1,17 @@
 ---
 title: "DATA607: Week 2 Assignment"
 author: "DH Kim"
-date: "`r Sys.Date()`"
+date: September 5, 2020
 output:
     pdf_document:
         extra_dependencies: ["geometry", "multicol", "multirow"]
 ---
 
 ### Overview
-This assignment exercises database as a method to store data and do data analysis. The week 1 assignment dealt with data with a single text file with extension csv. It is one way widely used for data analysis. Another is, as will be shown, relational database and sql which I in this assignment will explore with an example of movie recommendation. I think that, through the assignment, it is important to think about ways to store data, and the strength and weakness of the above two methods of data storage. 
+This assignment exercises database as a method to store data and do data analysis. The week 1 assignment dealt with data with a single text file with extension csv. It is one way widely used for data analysis. Another is, as will be shown, relational database and sql which I in this assignment will explore with an example of movie recommendation. I think that, through the assignment, it is important to think about how to store and handle data. Each would have strength and weakness. 
 
 ### Movie Database
-As will be seen, the survey results are stored in a database. Before going into that, I think it is worthy to note that. The table below shows data on movie ratings of six movies from five friends (A to  E), which is a good way to display data. The format is exactly what was in my head as a way to store the survey results in a csv file with comma delimited. From data perspective, it is called \textit{wide format}. Note that (1) there are multiple columns for movie ratings and (2) it can be converted to \textit{long format} which has just one column for the rating.  
+As will be seen, the survey results are stored in a database. Before going into that, I think it is worthy to note that. The table below shows data on movie ratings of six movies from five friends (A to  E), which is a good way to display data. The format is exactly what was in my mind as a way to store the survey results in a csv file with comma delimited. From data perspective, it is called \textit{wide format}. Note that (1) there are multiple columns for movie ratings and (2) it can be converted to \textit{long format} which has just one column for the rating.  
 
 \vspace{1em}
 
@@ -32,7 +32,7 @@ ARainyDayInNewYork&2&3&3&2&2\\
 
 \vspace{1em}
 
-The database used is Oracle database 11g Express Edition with SQL developer which can be freely downloaded from their websites. I think that it should be done with other databases, MySQL and PostgreSQL, and also R markdown which I am working with. The R markdown with DBI connection would be ideal but it remains as future work. Here, we will work with Oracle SQL developer with sql queries to create the movie database. The three steps do the work: (1) Create a user named \textit{moviedb}, (2) Create three tables named \textit{moving\_ratings}, \textit{friends}, and \textit{movies} and (3) insert data into relevant tables. It can be done by executing two sql files (\textit{setup\_moviedb.sql} and \textit{moviedb.sql}) attached. The more detailed procedure is as follows:
+The database used is Oracle database 11g Express Edition with SQL developer which can be freely downloaded from their websites. I think that it should be done with other databases, MySQL and PostgreSQL, and also R markdown which I am working with. The R markdown with DBI connection would be great but it remains as future work. Here, we will work with Oracle SQL developer to create the movie database. The three steps do the work: (1) Create a user named \textit{moviedb}, (2) Create three tables named \textit{moving\_ratings}, \textit{friends}, and \textit{movies} and (3) insert data into relevant tables. It can be done by executing two sql files (\textit{setup\_moviedb.sql} and \textit{moviedb.sql}) attached. The more detailed procedure is as follows:
 
 Step 1: To create a user, connect to the 'system' in Oracle SQL developer. It can be done with the green "+" icon. Then in the worksheet, execute \textit{setup\_moviedb.sql} file. Or type the "CREATE USER" command and press the green forward arrow to run it. 
 
@@ -41,9 +41,9 @@ Step 2: Connect to the \textit{moviedb} user created.
 Step 3: To create tables and insert records, run \textit{moviedb.sql} using "CREATE TABLE" and "INSERT INTO" command.
 
 ### Movie Recommendation
-We now have data on movie recommendation. SQL provides very powerful for data analysis (refer to \textit{prac.sql} file for some sql queries). The \textit{movies} and \textit{movie\_ratings} tables are shown in the Appendix. Note that, among other things, the rating data is in long format. 
+We now have data on movie recommendation. SQL provides very powerful in data analysis (refer to \textit{prac.sql} file for some sql queries). The \textit{movies} and \textit{movie\_ratings} data are shown in the Appendix. Note that, among other things, the rating data is in long format. 
 
-Below shows a simple movie recommendation by just averaging movie ratings from friends. It is done by running the query: 
+Product recommendation is an interesting field. Below shows a simple movie recommendation by just averaging movie ratings from friends. Another would be just adding the ratings of five friends. However, average is more robust than sum in the cast of missing values. The query is as follows: 
 
 \vspace{1em}
 
@@ -79,7 +79,7 @@ ARainyDayInNewYork&2.4\\
 
 
 ### Findings and Conclusions
-During the database exercise with movie recommendation, I realized that it is interesting and important to understand various aspects of data storage and handling. It is not simple and straightforward to store data. So it needs to think about efficient ways of managing data.  
+During the database exercise with movie recommendation, I realized that it is interesting and important to understand various aspects of data storage and handling. It is not simple and straightforward to store data. So it needs to think about efficient ways of managing data. Relational database with SQL is an efficient way and has strength in security. The use of csv file and R-SQL connection are future works.  
 
 ### Appendix
 The \textit{movie\_ratings} table is as follows:
