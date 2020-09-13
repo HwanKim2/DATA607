@@ -1,0 +1,177 @@
+---
+title: 'DATA607: Week 3 Assignment'
+author: "DH Kim"
+date: "September 12, 2020"
+output:
+  html_document:
+    df_print: paged
+  extra_dependencies:
+  - geometry
+  - multicol
+  - multirow
+  pdf_document: null
+---
+
+### Overview
+This is string manipulation that we need to work with subset of string. It practices how to access characters and digits inside a string. We will deal with some useful functions and regular expressions. 
+
+### Assignment 3.1
+
+Provide code that identifies the majors that contain either "DATA" or "STATISTICS" by using the 173 majors listed in fivethirtyeight.com’s College Majors dataset.
+
+The *grep()* function do the work.
+```{r}
+MajorData <- 
+  read.csv(url("https://raw.githubusercontent.com/fivethirtyeight/data/master/college-majors/majors-list.csv"))
+MajorInterested <- grep(pattern = "DATA|STATISTICS", MajorData$Major, value = TRUE)
+length(MajorInterested)
+print(MajorInterested)
+```
+
+### Assignment 3.2
+
+Write code that transforms the data below:
+
+[1] "bell pepper"  "bilberry"     "blackberry"   "blood orange"
+
+[5] "blueberry"    "cantaloupe"   "chili pepper" "cloudberry"  
+
+[9] "elderberry"   "lime"         "lychee"       "mulberry"    
+
+[13] "olive"        "salal berry"
+
+Into a format like this:
+
+c("bell pepper", "bilberry", "blackberry", "blood orange", "blueberry", "cantaloupe", "chili pepper", "cloudberry", "elderberry", "lime", "lychee", "mulberry", "olive", "salal berry")
+
+Step 1: Load the data into memory with string.
+
+```{R}
+rawData <- 
+  "[1] \"bell pepper\"  \"bilberry\"     \"blackberry\"   \"blood orange\" \n
+   [5] \"blueberry\"    \"cantaloupe\"   \"chili pepper\" \"cloudberry\" \n
+   [9] \"elderberry\"   \"lime\"         \"lychee\"       \"mulberry\" \n
+   [13] \"olive\"        \"salal berry\" "
+writeLines(rawData)
+```
+
+Step 2: Extract only strings that we need.
+```{R}
+library(stringr)
+inteData <- unlist(str_extract_all(rawData, "\"[[:alpha:] ]+\""))
+writeLines(inteData)
+```
+
+Step 3: Add what we need and combine all together within a string.
+```{r}
+for (i in 1:length(inteData)){
+  if (i==1) transData = str_c("c(",inteData[i],", ")
+  if (i>=2 & i < length(inteData)) transData = str_c(transData,inteData[i],", ")
+  if (i==length(inteData)) transData = str_c(transData, inteData[i],")")
+}
+writeLines(transData)
+```
+
+### Assignment 3.3
+
+3.3.1
+````
+(.)\1\1
+````
+The regular expression ``"(.)\1\1"`` with double quotes matches any letter followed by ``\1\1``.  For comparison, ``"(.)\\1\\1"`` matches any letter which is repeated three times in a row.
+
+```{r}
+test <- c("777", "data\1\1", "anna", "2002", '"elle"')
+str_view(test, "(.)\1\1", match = TRUE)
+str_view(test, "(.)\\1\\1", match = TRUE)
+```
+
+3.3.2
+````
+"(.)(.)\\2\\1"
+````
+matches any two letters followed by the letters in reverse order like eppe (in pepper).
+
+```{r}
+str_view(test, "(.)(.)\\2\\1", match = TRUE)
+```
+
+3.3.3
+````
+(..)\1
+````
+``"(..)\1"`` matches any two letter followe by ``\1``.  ``"(..)\\1"`` matches any repeated pair of letters.
+
+```{r}
+str_view(test, "(..)\1", match = TRUE)
+test <- c(test, "banana", "anan")
+str_view(test, "(..)\\1", match = TRUE)
+```
+
+3.3.4
+````
+"(.).\\1.\\1"
+````
+matches two letters, followed by the same first letter (whatever the second letter is), followed by the first letter like anana or apaya.
+
+```{r}
+test <- c(test, "papaya")
+str_view(test, "(.).\\1.\\1", match = TRUE)
+```
+
+3.3.5
+````
+"(.)(.)(.).*\\3\\2\\1"
+````
+matches from three letters to the same three letters in reverse order in any place.
+```{r}
+test <- c(test, "eeabcrtcbad")
+str_view(test, "(.)(.)(.).*\\3\\2\\1", match = TRUE)
+```
+
+### Assignment 3.4
+Construct regular expressions to match words that:
+
+3.4.1
+
+Start and end with the same character.
+````
+"^(.).*\\1$"
+````
+```{R}
+str_view(test, "^(.).*\\1$", match = TRUE)
+```
+
+
+3.4.2
+
+Contain a repeated pair of letters (e.g. "church" contains "ch" repeated twice.)
+
+````
+"(..).*\\1"
+````
+```{r}
+test <- c(test, "church")
+str_view(test, "(..).*\\1", match = TRUE)
+```
+
+3.4.3
+
+Contain one letter repeated in at least three places (e.g. "eleven" contains three "e"s.)
+
+````
+"(.).*\\1.*\\1"
+````
+```{r}
+test <- c(test, "eleven")
+str_view(test, "(.).*\\1.*\\1", match = TRUE)
+```
+
+### Findings and Conclusions
+The best way to survive in the world of string manipulation and regular expression seems to be like this: practice, practice, and practice. In Project 1, we will use these string manipulation and regular expression to have a tidy data from a text file.
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
