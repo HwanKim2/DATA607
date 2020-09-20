@@ -1,0 +1,129 @@
+---
+title: "Project 1"
+author: "DH Kim"
+date: September 19, 2020
+output: openintro::lab_report
+---
+
+### Overview
+This project performs an interesting and I think important task of data science, transforming format from any raw data into a data analysis-friendly one. Here, we write code to transform the ELO table of chess-tournament results (saved as a text file) into a data format which data scientists are familiar with. It includes some task of data acquisition from websites, data cleaning and transformation, string
+manipulation, data analysis, and data export. 
+
+### Data Loading
+The ELO table named *tournamentinfo.txt* is loaded with the \textbf{read.delim()} function from my publicly accessible GitHub repo. As expected, the resulting *eloTable* is an R data frame but not an easy format for analysis.
+```{r}
+eloTable <-
+  read.delim("https://raw.githubusercontent.com/HwanKim2/DATA607/master/Project1/tournamentinfo.txt",skip = 1, sep = "|", header = TRUE)
+names(eloTable)
+```
+
+### Data Transformation
+Before doing an essential task of data transformation, dotted lines which are unnecessary, appearing in the *Pair* column, are excluded.
+```{r load-packages, message=FALSE}
+library(dplyr)
+eloTable<- filter(eloTable, Pair != eloTable[2,1])
+```
+
+In the *eloTable* data, information on player is recorded in two rows, meaning different types of variables in the same column. Data scientists would prefer one row for each player. Two steps will do: (1) extract for all players the first parts and second parts separately and (2) use the \textbf{cbind()} function to combine the two parts. Note that all of the first parts are placed in the even number of rows in the *eloTable*.
+```{R}
+VariablesKeep <- 
+  c("Pair", "Player.Name", "Total", "Round", "Round.1",
+    "Round.2", "Round.3", "Round.4", "Round.5", "Round.6")
+VariablesName <-
+  c("PlayerID", "Player\'s Name", "Total Number of Points", "Round1", "Round2",
+    "Round3", "Round4", "Round5", "Round6", "Round7")
+tLength <- length(eloTable[,1])
+TablePart1 <- eloTable[seq(2,tLength,2),VariablesKeep]
+names(TablePart1) <- VariablesName
+```
+
+The second parts are placed in the odd number of rows, beginning from the third row. Only two variables are necessary from the second part.
+```{r}
+VariablesKeep <-
+  c("Pair", "Player.Name")
+VariablesName <- 
+  c("Player\'s State", "Player PreRating")
+TablePart2 <- eloTable[seq(3,tLength,2),VariablesKeep]
+names(TablePart2) <- VariablesName
+```
+
+With the coding below, we now have a good-looking data with some of variables rearranged.
+```{r}
+Ratingdf <- cbind( TablePart1, TablePart2 )
+Ratingdf <-
+  Ratingdf[c("PlayerID", "Player\'s Name", "Player\'s State", 
+              "Total Number of Points", "Player PreRating", "Round1", 
+              "Round2", "Round3", "Round4", "Round5", "Round6", "Round7")]
+```
+
+### String Manipulation
+Some string manipulations are required for a better one.
+```{r}
+library(stringr)
+Ratingdf$PlayerID <- as.numeric(str_trim(Ratingdf$PlayerID))
+Ratingdf$`Player\'s Name` <- str_trim(Ratingdf$`Player\'s Name`)
+Ratingdf$`Player\'s State` <- str_trim(Ratingdf$`Player\'s State`)
+Ratingdf$`Total Number of Points` <- 
+  as.numeric(str_trim(Ratingdf$`Total Number of Points`))
+```
+
+For the *Player PreRating* variable,
+```{r}
+Ratingdf$`Player PreRating` <- 
+  as.numeric(str_sub(Ratingdf$`Player PreRating`, start=16, end=19))
+```
+
+For the seven Round variables, 
+```{r}
+Ratingdf$Round1 <- as.numeric(str_sub(Ratingdf$Round1, start=4, end=5))
+Ratingdf$Round2 <- as.numeric(str_sub(Ratingdf$Round2, start=4, end=5))
+Ratingdf$Round3 <- as.numeric(str_sub(Ratingdf$Round3, start=4, end=5))
+Ratingdf$Round4 <- as.numeric(str_sub(Ratingdf$Round4, start=4, end=5))
+Ratingdf$Round5 <- as.numeric(str_sub(Ratingdf$Round5, start=4, end=5))
+Ratingdf$Round6 <- as.numeric(str_sub(Ratingdf$Round6, start=4, end=5))
+Ratingdf$Round7 <- as.numeric(str_sub(Ratingdf$Round7, start=4, end=5))
+```
+
+### Data Analysis
+We need to calculate the average pre rating of seven opponents. Note that the Round variables has opponent's IDs, not needed pre rating. We will first have for each player pre ratings of opponents in a row (but multiple columns, noting that we have opponent's pre ratings but in unfavorable way -- I guess it would be good to have them in a row). Then the summation would be much easier. With the following operations, we have Opponent's pre ratings replaced in-place of IDs:  
+```{r}
+for (i in 1:length(Ratingdf)) {
+  Ratingdf$Round1[i] <- Ratingdf[Ratingdf$Round1[i], "Player PreRating"]
+}
+for (i in 1:length(Ratingdf)) {
+  Ratingdf$Round2[i] <- Ratingdf[Ratingdf$Round2[i], "Player PreRating"]
+}
+for (i in 1:length(Ratingdf)) {
+  Ratingdf$Round3[i] <- Ratingdf[Ratingdf$Round3[i], "Player PreRating"]
+}
+for (i in 1:length(Ratingdf)) {
+  Ratingdf$Round4[i] <- Ratingdf[Ratingdf$Round4[i], "Player PreRating"]
+}
+for (i in 1:length(Ratingdf)) {
+  Ratingdf$Round5[i] <- Ratingdf[Ratingdf$Round5[i], "Player PreRating"]
+}
+for (i in 1:length(Ratingdf)) {
+  Ratingdf$Round6[i] <- Ratingdf[Ratingdf$Round6[i], "Player PreRating"]
+}
+for (i in 1:length(Ratingdf)) {
+  Ratingdf$Round7[i] <- Ratingdf[Ratingdf$Round7[i], "Player PreRating"]
+}
+```
+
+Finally, we need summation of opponent's pre ratings which are placed in multiple columns. This is also not the friendly format for summation whose operation, like any other statistical ones, usually works in a column/variable. The \textbf{rowSums()} function will do.
+```{r}
+Ratingdf$AvgRatingPartner = 
+  round( rowSums(Ratingdf[,6:12], na.rm = TRUE)/7 )
+```
+
+### Data Export
+Write *Tournament.csv* with the following five variables:
+```{r}
+TournamentData <- 
+  Ratingdf[,c("Player\'s Name", "Player\'s State", "Total Number of Points", 
+             "Player PreRating", "AvgRatingPartner")]
+write.table(TournamentData, "Tournament.csv", row.names=FALSE, col.names=FALSE, sep = ",")
+```
+
+### Findings and Conclusions
+Like any other principles, data analysis has well-established rules, some of which presented in this project. It is a good practice to keep that in mind, follow the rules, and extend the rules if necessary. This would be a guideline to us when we face unusual formats of data.
