@@ -10,7 +10,7 @@ This project performs an interesting and I think important task of data science,
 manipulation, data analysis, and data export. 
 
 ### Data Loading
-The ELO table named *tournamentinfo.txt* is loaded with the \textbf{read.delim()} function from my publicly accessible GitHub repo. As expected, the resulting *eloTable* is an R data frame but not an easy format for analysis.
+The ELO table named *tournamentinfo.txt* is loaded with the **read.delim()** function from my publicly accessible GitHub repo. As expected, the resulting *eloTable* is an R data frame but not an easy format for analysis.
 ```{r}
 eloTable <-
   read.delim("https://raw.githubusercontent.com/HwanKim2/DATA607/master/Project1/tournamentinfo.txt",skip = 1, sep = "|", header = TRUE)
@@ -24,7 +24,7 @@ library(dplyr)
 eloTable<- filter(eloTable, Pair != eloTable[2,1])
 ```
 
-In the *eloTable* data, information on player is recorded in two rows, meaning different types of variables in the same column. Data scientists would prefer one row for each player. Two steps will do: (1) extract for all players the first parts and second parts separately and (2) use the \textbf{cbind()} function to combine the two parts. Note that all of the first parts are placed in the even number of rows in the *eloTable*.
+In the *eloTable* data, information on player is recorded in two rows, meaning different types of variables in the same column. Data scientists would prefer one row for each player. Two steps will do: (1) extract for all players the first parts and second parts separately and (2) use the **cbind()** function to combine the two parts. Note that all of the first parts are placed in the even number of rows in the *eloTable*.
 ```{R}
 VariablesKeep <- 
   c("Pair", "Player.Name", "Total", "Round", "Round.1",
@@ -110,7 +110,7 @@ for (i in 1:length(Ratingdf)) {
 }
 ```
 
-Finally, we need summation of opponent's pre ratings which are placed in multiple columns. This is also not the friendly format for summation whose operation, like any other statistical ones, usually works in a column/variable. The \textbf{rowSums()} function will do.
+Finally, we need summation of opponent's pre ratings which are placed over multiple columns. This is also not the commonly-used format for summation whose operation, like any other statistical ones, usually works in a column. In Fortran, column calculation (e.g. summation of items in a column) is faster than row calculation, summation of values in a row, due to Fortran's way of storing data in memory. Here, the **rowSums()** function will do.
 ```{r}
 Ratingdf$AvgRatingPartner = 
   round( rowSums(Ratingdf[,6:12], na.rm = TRUE)/7 )
@@ -126,4 +126,4 @@ write.table(TournamentData, "Tournament.csv", row.names=FALSE, col.names=FALSE, 
 ```
 
 ### Findings and Conclusions
-Like any other principles, data analysis has well-established rules, some of which presented in this project. It is a good practice to keep that in mind, follow the rules, and extend the rules if necessary. This would be a guideline to us when we face unusual formats of data.
+Like any other principles, data analysis has well-established rules, some of which presented in this project. It is a good practice to keep that in mind, follow the rules, and extend them if necessary, which gives us a guideline when we face unusual formats of data.
