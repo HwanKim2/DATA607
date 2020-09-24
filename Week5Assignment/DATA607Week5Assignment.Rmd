@@ -1,0 +1,106 @@
+---
+title: "Week 5 Assignment"
+author: "DH Kim"
+date: "`r Sys.Date()`"
+output: openintro::lab_report
+---
+
+### Overview
+This Assignment imports, transforms, and analyzes data on the number of flights by arrival delays.
+
+### Data Storage: .csv
+We create data on arrival delays for two airlines (ALASKA and AMWEST) across five destinations (whose file is named *flightsInfo.csv*, as shown below, with wide data format) which is written by hand.
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(RMySQL)
+library(kableExtra)
+```
+
+```{r warning = FALSE}
+numflightsTable <- read.csv("flightsInfo.csv", header=FALSE)
+numflightsTable
+```
+### Data Storage: MySQL DB
+The data can be stored in MySQL using the *flightsinfo.sql* (which is shown below) and *flightsInfo.csv*. We can access the database using the \textbf{RMySQL} library in R which will be shown soon.  
+````
+/*
+  flightsinfo.sql
+*/
+DROP TABLE IF EXISTS flightsinfo;
+CREATE TABLE flightsinfo
+(
+  airline varchar(50) NOT NULL,
+  ontime varchar(25) NOT NULL,
+  la int NULL,
+  phoenix int NULL,
+  sd int NULL,
+  sf int NULL,
+  seattle int NULL
+);
+SELECT * FROM flightsinfo;
+LOAD DATA INFILE 'C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\flightsInfo.csv' 
+INTO TABLE flightsinfo
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+(airline, ontime, la, phoenix, sd, sf, seattle)
+;
+SELECT * FROM flightsinfo;
+````
+
+### MySQL in R
+We connect to the MySQL DB in R and import data.
+```{r}
+flightsInfoDB <- dbConnect(MySQL(),
+                           user='DATA607',
+                           password='DATA607',
+                           dbname='flightsinfo',
+                           host='localhost')
+dbListFields(flightsInfoDB, "flightsinfo")
+queryResult <- dbSendQuery(flightsInfoDB, "SELECT * FROM flightsinfo")
+numflightsTable <- fetch(queryResult,n=-1)
+numflightsTable
+```
+
+### Tidying Data
+The data is converted to a long format.
+```{r}
+numflights <- 
+  pivot_longer(numflightsTable, cols = la:seattle,
+    names_to = "destination", values_to = "count")
+tibble(numflights)
+```
+Again, we convert it into a format that we will work with.
+```{r}
+numflights <- pivot_wider(numflights, names_from=ontime, values_from=count)
+numflights
+```
+### Analyzing Data
+Calculate and plot the proportion of on-time by destination and airline.
+```{r warnings = FALSE}
+numflights <- numflights %>%
+  mutate(total = `on time` + delayed,
+         onTime_ratio = round(`on time`/total, digits=2))
+tibble(numflights)
+```
+
+```{r}
+names(numflights) <- c("Airline", "Destination", "On-Time", "Delayed", "Total", "On-Time Rate")
+numflights <- numflights[c("Airline", "Destination", 
+                           "On-Time Rate", "On-Time",
+                           "Delayed","Total")]
+numflights %>%
+     kbl() %>%
+     kable_classic(full_width = F, html_font = "Cambria")
+```
+
+```{r, fig.width=6, fig.height=4}
+ggplot(data = numflights, 
+       aes(x = Destination, y = `On-Time Rate`, fill=Airline)) +
+geom_bar(stat='identity',position=position_dodge()) +
+scale_fill_brewer(palette="Paired")
+ 
+```
+
+### Findings and Conclusions
+In this assignment, I deal with arrival delays data. I found out that the airport Phoenix has the highest on-time arrival rate by both airlines. In addition, ALASKA has higher on-time arrival rate than AMWEST. 
