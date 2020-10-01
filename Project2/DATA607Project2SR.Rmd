@@ -1,0 +1,46 @@
+---
+title: "Project 2"
+author: "DH Kim"
+date: "`r Sys.Date()`"
+output: openintro::lab_report
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(kableExtra)
+```
+
+### Loading Data
+```{r code-chunk-label}
+studentResidency <- read.csv(url("https://raw.githubusercontent.com/HwanKim2/DATA607/master/Project2/studentResidency.csv"), row.names = NULL)
+studentResidency
+```
+Some adjustmens for names and values in the data are performed.
+```{r}
+names(studentResidency) <- c("State","ClassRank","OffCampus","OnCampus","Total")
+studentResidency$State[studentResidency$State == "Total"] <- "AllState"
+studentResidency$ClassRank[studentResidency$ClassRank == "Total"] <- "AllClassRank"
+studentResidency
+```
+
+### Change in Residency
+```{r}
+stuResidency_shape1 = pivot_longer(studentResidency, 
+                                   cols = OffCampus:Total,
+                                   names_to = "Residency", values_to = "count")
+stuResidency_shape1
+stuResidency_shape2 = pivot_wider(stuResidency_shape1, 
+                                   names_from = "ClassRank", values_from = "count")
+stuResidency_shape2
+```
+```{r}
+stuResidency_shape2 <- stuResidency_shape2 %>%
+  mutate(ResidencyChange = Upperclassman - Underclassman,
+         RateResidencyChange = round ( (ResidencyChange/Underclassman), digits = 2 ))
+stuResidency_shape2 <- stuResidency_shape2[c("State","Residency", 
+                                             "RateResidencyChange","ResidencyChange",
+                                             "Underclassman","Upperclassman")]
+stuResidency_shape2 %>%
+     kbl() %>%
+     kable_classic(full_width = F, html_font = "Cambria")
+```

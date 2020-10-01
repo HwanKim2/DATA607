@@ -1,0 +1,204 @@
+---
+title: "Project 2: Racing Data"
+author: "DH Kim"
+date: "`r Sys.Date()`"
+output: openintro::lab_report
+---
+
+# Overview
+In this project, a pdf file of car racing data is imported into R and the messy data is cleaned, transformed, and visualized.
+
+# Racing data in pdf
+Racing data comes from https://blog.ouseful.info/2015/08/11/fragments-scraping-tabula-data-from-pdfs/. The data I work with here is in my GitHub repo named RacingData.pdf.
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(pdftools)
+```
+
+```{r}
+# load the racing pdf. the pdf_text() reads the text of the pdf file.
+# the read_lines() reads lines of the file.
+racing_pdf <- 
+  pdf_text(url("https://raw.githubusercontent.com/HwanKim2/DATA607/master/Project2/RacingData.pdf")) %>%
+  readr::read_lines() 
+# interested in racing records.
+# reduce whitespace between each string and do data cleaning.
+racing_lines <- racing_pdf[4:21] %>%
+  str_squish() %>%
+  str_replace("-", "") %>%
+  str_remove_all("\\(\\d\\)")
+racing_lines
+```
+
+# Racing records to data frame
+The messy text is converted into data frame with some string manipulation operations.
+```{r}
+# name lines and data lines
+name_line_one <- racing_lines[1]
+name_line_two <- racing_lines[10]
+data_line_one <- racing_lines[4:9]
+data_line_two <- racing_lines[13:18]
+# fill first lap (OUTLAP?) and squish
+data_line_one_filled <- sub("^1 ", "1 NA ", data_line_one)
+data_line_one_filled <- str_squish(data_line_one_filled)
+
+data_line_two_filled <- sub("^1 ", "1 NA ", data_line_two)
+data_line_two_filled <- str_squish(data_line_two_filled)
+
+# For first racer
+# split each elements of strings into  substrings
+data_line_one_sp <- data_line_one_filled %>%
+  strsplit(split= " ")
+head(data_line_one_sp)
+```
+
+```{r}
+# work with the first nine elements
+for(i in 1:length(data_line_one_sp)){
+  data_line_one_sp[[i]] <- data_line_one_sp[[i]][1:9]
+}
+# into data frame
+racingdf_one <- plyr::ldply(data_line_one_sp)
+# add variables
+names(racingdf_one) <-
+  c("lap","lapTime_sector1","mph_sector1","lapTime_sector2","mph_sector2",
+    "lapTime_sector3","mph_sector3","lapTime_all", "mph_all")
+# add racer name
+racer_one <- name_line_one %>%
+  str_remove("P. \\d{2}") %>%
+  str_remove("JHR Developments") %>%
+  str_trim()
+# combine
+racingdf_one <- cbind(name = racer_one, racingdf_one)
+racingdf_one 
+```
+
+```{r}
+# For second racer
+# string split
+data_line_two_sp <- data_line_two_filled %>%
+  strsplit(split= " ")
+
+# first nine elements
+for(i in 1:length(data_line_two_sp)){
+  data_line_two_sp[[i]] <- data_line_two_sp[[i]][1:9]
+}
+# into data frame
+racingdf_two <- plyr::ldply(data_line_two_sp)
+#names(racingdf_two) <- 
+  c("lap","lapTime_sector1","mph_sector1","lapTime_sector2","mph_sector2",
+    "lapTime_sector3","mph_sector3","lapTime_all", "mph_all")
+# add racer name
+racer_two <- name_line_two %>%
+  str_remove("P. \\d{2}") %>%
+  str_remove("JHR Developments") %>%
+  str_trim()
+# combine
+racingdf_two <- cbind(name = racer_two, racingdf_two)
+```
+
+```{r}
+# combine
+names(racingdf_two) <- names(racingdf_one)
+racing_df <- rbind(racingdf_one, racingdf_two)
+racing_df
+```
+
+# Transforming racing data
+The resulting racing data is lap data containing columns of lap time and mph for three sectors. It can be converted into a long format, lap-sector-type data in which all the values are placed in a column. There is two types: mph and lap time.
+```{r}
+racing_df_one <- pivot_longer(racing_df, cols = lapTime_sector1:mph_all,
+                              names_to = c(".values","sector"),
+                              names_sep = "_")
+racing_df_one$value <- as.numeric(racing_df_one$value)
+names(racing_df_one) <- c("name", "lap", "type", "sector", "value") 
+tibble(racing_df_one)
+```
+The data also can be converted as sector-type data which has columns
+```{r}
+sectorData <- pivot_wider(racing_df_one, names_from=lap,
+                             values_from=value)
+names(sectorData) <- 
+  c("name", "type", "sector", 
+    "lap1", "lap2", "lap3", "lap4","lap5", "lap6")
+sectorData
+```
+
+# MPH and laptime visualization
+This chapter visualizes mph and lap time by sector and lap time for two racers. Sector 2 has the highest in both mph and lap time. The racer MONGER's race is more stable by lap than that of PROCTOR.  
+```{r}
+ggplot(data = subset(na.omit(sectorData), 
+                     name == "Billy MONGER" & 
+                     type == "mph" & 
+                     sector != "all"),
+       aes(x=sector, group=1)) +
+geom_line(aes(y=lap1, color="lap1")) +
+geom_line(aes(y=lap2, color="lap2")) +
+geom_line(aes(y=lap3, color="lap3")) +
+geom_line(aes(y=lap4, color="lap4")) +
+geom_line(aes(y=lap5, color="lap5")) +
+geom_line(aes(y=lap6, color="lap6")) +
+labs(
+  y = "mph",
+  title = "The MPH by Sector",
+  subtitle = "Billy MONGER"
+)
+```
+
+
+```{r}
+ggplot(data = subset(na.omit(sectorData), 
+                     name == "Senna PROCTOR" & 
+                     type == "mph" & 
+                     sector != "all"),
+       aes(x=sector, group=1)) +
+geom_line(aes(y=lap1, color="lap1")) +
+geom_line(aes(y=lap2, color="lap2")) +
+geom_line(aes(y=lap3, color="lap3")) +
+geom_line(aes(y=lap4, color="lap4")) +
+geom_line(aes(y=lap5, color="lap5")) +
+geom_line(aes(y=lap6, color="lap6")) +
+labs(
+  y = "mph",
+  title = "The MPH by Sector",
+  subtitle = "Senna PROCTOR"
+)
+```
+```{r}
+ggplot(data = subset(na.omit(sectorData), 
+                     name == "Billy MONGER" & 
+                     type == "lapTime" & 
+                     sector != "all"),
+       aes(x=sector, group=1)) +
+geom_line(aes(y=lap2, color="lap2")) +
+geom_line(aes(y=lap3, color="lap3")) +
+geom_line(aes(y=lap4, color="lap4")) +
+geom_line(aes(y=lap5, color="lap5")) +
+geom_line(aes(y=lap6, color="lap6")) +
+labs(
+  y = "LAP Time",
+  title = "The LAP Time by Sector",
+  subtitle = "Billy MONGER"
+)
+```
+```{r}
+ggplot(data = subset(na.omit(sectorData), 
+                     name == "Senna PROCTOR" & 
+                     type == "lapTime" & 
+                     sector != "all"),
+       aes(x=sector, group=1)) +
+geom_line(aes(y=lap2, color="lap2")) +
+geom_line(aes(y=lap3, color="lap3")) +
+geom_line(aes(y=lap4, color="lap4")) +
+geom_line(aes(y=lap5, color="lap5")) +
+geom_line(aes(y=lap6, color="lap6")) +
+labs(
+  y = "LAP Time",
+  title = "The LAP Time by Sector",
+  subtitle = "Senna PROCTOR"
+)
+```
+
+# Findings and Conclusions
+In the Project, I analyzed a racing data. To do that, I imported a pdf file of messy racing data into R data frame through string manipulations, transformed data into some wide and long shapes, and visualized the mph and lap time by sector and lap. Among others, it shows that the racer PROCTOR's racing is less stable than that of MONGER. 
