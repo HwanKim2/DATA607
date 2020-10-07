@@ -1,0 +1,23 @@
+{"books": [
+  {
+  "title": "OpenIntro Statistics: Fourth Edition",
+  "author": ["David Diez", "Mine Cetinkaya-Rundel", "Christopher Barr"]
+  "year": 2019,
+  "page": 422,
+  "price": 19.00
+   },
+  {
+  "title": "Data Science for Business",
+  "author": ["Foster Provost", "Tom Fawcett"],
+  "year": 2013,
+  "page": 414,
+  "price": 26.32
+  },
+  {
+  "title": "The Essential Holmes",
+  "author": "Oliver Wendell Holmes",
+  "year": 1997,
+  "page": 374,
+  "price": 31.00
+  }
+]}
