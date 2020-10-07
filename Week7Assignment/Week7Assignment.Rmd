@@ -1,0 +1,62 @@
+---
+title: "DATA607: Week 7 Assignment"
+author: "DH Kim"
+date: October 10, 2020
+output: openintro::lab_report
+---
+### Overview
+In this Assignment, I work with three types of my books data files (books.html, books.xml, and books.json). The data are stored in publicly accesible my GitHub repo, which is originally typed by hand and moved to the repo with Git Bash. I read the data sources in R. The three resultant data frames are compared.
+
+### Loading Packages
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(XML)
+library(RCurl)
+library(kableExtra)
+library(DT)
+library(jsonlite)
+```
+
+### books data in html
+
+It uses the readHTMLTable() function from the XML library and getURL() from RCurl.
+
+```{r}
+week7_booksHTML <- getURL("https://raw.githubusercontent.com/HwanKim2/DATA607/master/Week7Assignment/books.html")
+booksHTML <- readHTMLTable(week7_booksHTML, header = TRUE)
+booksHTML
+booksDFfromHTML <- data.frame(booksHTML$`NULL`)
+booksDFfromHTML
+datatable(booksDFfromHTML)
+```
+
+### books data in xml
+
+```{r}
+Week7_booksXML <- getURL("https://raw.githubusercontent.com/HwanKim2/DATA607/master/Week7Assignment/books.xml")
+booksXML <- xmlParse(Week7_booksXML)
+root <- xmlRoot(booksXML)
+xmlName(root)
+xmlSize(root)
+booksDFfromXML <- xmlToDataFrame(root)
+booksDFfromXML
+datatable(booksDFfromXML)
+```
+
+### books data in json
+
+The fromJSON() function comes form the jsonlite library.
+
+```{r}
+week7_booksJSON <- getURL("https://raw.githubusercontent.com/HwanKim2/DATA607/master/Week7Assignment/books.json")
+booksJSON <- fromJSON(week7_booksJSON)
+booksJSON
+booksDFfromJSON <- data.frame(booksJSON$`books`)
+datatable(booksDFfromJSON)
+```
+
+### Findings and Conclusions
+
+I scraped three difference sources from web. The resulting three data frames are identical.
+
