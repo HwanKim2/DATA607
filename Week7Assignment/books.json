@@ -1,7 +1,7 @@
 {"books": [
   {
   "title": "OpenIntro Statistics: Fourth Edition",
-  "author": ["David Diez", "Mine Cetinkaya-Rundel", "Christopher Barr"]
+  "author": ["David Diez", "Mine Cetinkaya-Rundel", "Christopher Barr"],
   "year": 2019,
   "page": 422,
   "price": 19.00
