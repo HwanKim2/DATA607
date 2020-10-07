@@ -4,21 +4,21 @@
          <title>OpenIntro Statistics: Fourth Edition</title>
          <author>David Diez, Mine Cetinkaya-Rundel, Christopher Barr</author>
          <year>2019</year>
-         <page>422</year>
+         <page>422</page>
          <price>19.00</price>
      </book>
      <book id="2">
          <title>Data Science for Business</title>
          <author>Foster Provost, Tom Fawcett</author>
          <year>2013</year>
-         <page>414</year>
+         <page>414</page>
          <price>26.32</price>
      </book>
      <book id="3">
         <title>The Essential Holmes</title>
         <author>Oliver Wendell Holmes</author>
         <year>1997</year>
-        <page>374</year>
+        <page>374</page>
         <price>31.00</price>
      </book>
 </books>
