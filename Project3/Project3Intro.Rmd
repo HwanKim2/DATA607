@@ -1,0 +1,78 @@
+---
+title: "Project 3 (first draft, in progress)"
+author: "Author Name"
+date: "`r Sys.Date()`"
+header-includes: 
+       - \usepackage{tikz}
+       - \usetikzlibrary{positioning,shapes.multipart,shapes}
+output: beamer_presentation
+---
+
+### Data Loading
+```{r load-packages, message=FALSE}
+library(readxl)
+library(httr)
+```
+Data Source (Excel file)
+```{r  tidy=TRUE, out.width='50%'}
+retailURL <- "http://archive.ics.uci.edu//ml//machine-learning-databases//00502//online_retail_II.xlsx"
+GET(retailURL, write_disk(tempFileName <- tempfile(fileext = ".xlsx")))
+retail_sheet_2009 <- read_excel(tempFileName, sheet = "Year 2009-2010")
+retail_sheet_2010 <- read_excel(tempFileName, sheet = "Year 2010-2011")
+retaildf <- rbind(retail_sheet_2009, retail_sheet_2010)
+```
+
+### Description of Data
+```{r}
+head(retaildf)
+```
+
+### E-R Diagram
+
+\tikzset{basic/.style={
+        draw,
+        rectangle split,
+        rectangle split parts=2,
+        rectangle split part fill={blue!20,white},
+        minimum width=2.5cm,
+        text width=2cm,
+        align=left,
+        font=\itshape
+    },
+    Diamond/.style={ diamond, 
+                        draw, 
+                        shape aspect=2, 
+                        inner sep = 2pt,
+                        text centered,
+                        fill=blue!10!white,
+                        font=\itshape
+                      }}
+\begin{tikzpicture}
+\node[basic] (product) 
+{product
+\nodepart{second}
+\underline{product\_id}\\
+product\_name};
+\node[basic,right=2cm of product] (invoice) 
+{invoice
+\nodepart{second}
+\underline{invoice\_id}\\
+customer\_id\\
+invoice\_date};
+\draw (product) -- (invoice) ;
+\node[basic,right=2cm of invoice] (invoiceitem) 
+{invoiceitem
+\nodepart{second}
+\underline{invoice\_id}\\
+\underline{product\_id}\\
+price\\
+quantity};
+\draw (invoice) -- (invoiceitem) ;
+\node[basic,below=1.5cm of invoice] (customer) 
+{customer
+\nodepart{second}
+\underline{customer\_id}\\
+	country};
+\draw (invoice) -- (customer) ;
+\end{tikzpicture}
+
