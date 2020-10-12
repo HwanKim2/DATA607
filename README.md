@@ -40,7 +40,7 @@ DATA 607 weekly assignments and projects
   + books.xml
   + books.json
 
-* Project 3: Data analysis
+* Project 3: (Group project)
 
 
 
