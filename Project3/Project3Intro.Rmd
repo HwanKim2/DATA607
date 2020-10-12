@@ -1,30 +1,47 @@
 ---
-title: "Project 3 (first draft, in progress)"
-author: "Author Name"
+title: "Project 3: The First Part"
+author: "Cassie Boylan, DH Kim, Alexis Mekueko"
 date: "`r Sys.Date()`"
 header-includes: 
        - \usepackage{tikz}
        - \usetikzlibrary{positioning,shapes.multipart,shapes}
 output: beamer_presentation
 ---
+```{r setup, include=FALSE}
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+```
 
-### Data Loading
+### Data Source and Loading
+Packages used:
 ```{r load-packages, message=FALSE}
 library(readxl)
 library(httr)
 ```
-Data Source (Excel file)
-```{r  tidy=TRUE, out.width='50%'}
-retailURL <- "http://archive.ics.uci.edu//ml//machine-learning-databases//00502//online_retail_II.xlsx"
+
+E-Commerce Data:
+```{r, size="tiny"}
+retailURL <- 
+    "http://archive.ics.uci.edu//ml//machine-learning-databases//00502//online_retail_II.xlsx"
+```
+
+Loading and Combining Data 
+```{r, size = "tiny", results = "hide"}
 GET(retailURL, write_disk(tempFileName <- tempfile(fileext = ".xlsx")))
+```
+```{r, size="tiny"}
 retail_sheet_2009 <- read_excel(tempFileName, sheet = "Year 2009-2010")
 retail_sheet_2010 <- read_excel(tempFileName, sheet = "Year 2010-2011")
 retaildf <- rbind(retail_sheet_2009, retail_sheet_2010)
 ```
 
+
 ### Description of Data
-```{r}
-head(retaildf)
+```{r, size = "tiny"}
+retaildf
 ```
 
 ### E-R Diagram
