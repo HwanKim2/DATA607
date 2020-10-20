@@ -1,0 +1,294 @@
+---
+title: 'E-Commerce Transaction Data: '
+subtitle: "An Online Gift Shop Retailer Case"
+author: "DATA607 Project 3 Presentation"
+date: "Cassie Boylan, DH Kim, Alexis Mekueko"
+output:
+  beamer_presentation:
+    theme: Antibes
+    colortheme: dolphin
+    toc: yes
+    keep_tex: yes
+    slide_level: 2
+  ioslides_presentation: default
+  slidy_presentation: default
+header-includes:
+- \usepackage{tikz}
+- \usetikzlibrary{positioning,shapes.multipart,shapes}
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage{wrapfig}
+- \usepackage{float}
+- \usepackage{colortbl}
+- \usepackage{pdflscape}
+- \usepackage{tabu}
+- \usepackage{threeparttable}
+- \usepackage{threeparttablex}
+- \usepackage[normalem]{ulem}
+- \usepackage{makecell}
+
+---
+
+```{r setup, include=FALSE}
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\n \\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+```
+
+## Who Presents What
+\textbf{DH Kim}: Data Acquisition from Web
+
+- Motivation, \textcolor{red}{Gift shop business}, \textcolor{red}{How to Import Excel Data from Web}, Data Structure
+
+Cassie Boylan: Revenue Analysis from Invoices Data
+
+- An Online Gift Shop Retailer, Pre-processing Data, Top 10 and Bottom 10 Gift Items Sold, Results of Analysis
+
+Alexis Mekueko: Data Management with Database
+
+- Why Database?: Securing Data, Theoretical E-R Diagram, Normalizing: The Customer Table 
+
+# Data Acquisition from Web
+## Motivation
+
+### Recent crisis of retailer stores
+### Linking business-related activities to real-world data 
+
+\vspace{1em}
+
+\begin{quote}
+Virtually every aspect of business is now open to data collection and often instrumented for data collection: operations, manufacturing, \textbf{supply-chain management}, customer behaviour, market campaign performance, workflow procedures, and so on (page 1, Data Science for  Business)
+\end{quote}
+
+## Gift Shop Business and Transaction Data 
+
+### An Online Retailer
+- This is an UK-based online gift shop retailer selling gift goods to customers (mainly wholesalers) across countries. 
+- Main items sold include Assorted Color Bird Wind Ornaments, Pink Cheery Lights, Floral Elephant Soft Toy, and so on.
+
+### E-Commerce Invoice Data 
+- Information on which items are sold, how many, and how much, who buys them, and when and what time are they ordered.  
+
+- Data covering from 12/1/2009 to 12/9/2011, which is stored in an Excel file with two separate sheets.
+
+## Importing Excel Data from the Web
+
+Source: [\textcolor{brown}{The Website of UCI Machine Learning Repo} ](https://archive.ics.uci.edu/ml/datasets/Online+Retail+II)
+
+Packages needed:
+```{r load-packages, message=FALSE}
+library(readxl)
+library(httr)
+```
+
+The \textcolor{red}{GET()} and \textcolor{red}{read\_excel()} functions
+```{r, size="tiny"}
+retailURL <- 
+    "http://archive.ics.uci.edu//ml//machine-learning-databases//00502//online_retail_II.xlsx"
+```
+```{r, size = "tiny", results = "hide"}
+GET(retailURL, write_disk(tempFileName <- tempfile(fileext = ".xlsx")))
+```
+```{r, size="tiny"}
+retail_sheet_2009 <- read_excel(tempFileName, sheet = "Year 2009-2010")
+retail_sheet_2010 <- read_excel(tempFileName, sheet = "Year 2010-2011")
+retaildf <- rbind(retail_sheet_2009, retail_sheet_2010)
+```
+
+## Description of Data 
+### Invoices Data 
+```{r message=FALSE,, size = "tiny"}
+library(tidyverse)
+glimpse(retaildf)
+```
+
+## Summary of Revenue and Transaction by Year
+```{r message=FALSE, size = "tiny"}
+library(stringr)
+library(kableExtra)
+retaildf$Date <- str_sub(retaildf$InvoiceDate, start=1, end=10)
+retaildf$Year <- str_extract(retaildf$InvoiceDate, "\\d{4}")
+
+summaReTr <- retaildf %>%
+  filter(!is.na(Description)&!is.na(`Customer ID`)&Quantity > 0&Price > 0) %>%
+  mutate(Revenue = round(Quantity*Price, digit = 2)) %>%
+  group_by(Year) %>%
+  summarise(Revenue = sum(Revenue),
+            n_transactions = n_distinct(Invoice),
+            n_obs = n(),
+            First_Date = min(Date),
+            Last_Date = max(Date))
+kbl(summaReTr, booktabs = T) 
+```
+
+# Revenue Analysis from Invoices Data
+## An Online Retailer Case
+
+- This is Online Gift Shop Retailer
+
+- Data from 12/1/2009 to 12/9/2011 daily including time information 
+
+- The number of annual transactions is about 18,000 (Year 2010) 
+
+- The annual revenue is about 8 millions (Year 2010)
+
+## Pre-processing 1
+```{r, message=FALSE, size="tiny"}
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(tidyverse)
+library(scales)
+library(janitor)
+library(epiDisplay)
+```
+
+```{r message=FALSE, size = "tiny"}
+retaildf_2009 <- retaildf %>%
+    filter(as.Date.POSIXct(InvoiceDate)=='2009-12-01') %>%
+    filter(!is.na(Description) &!is.na(`Customer ID`) & Quantity > 0) %>%
+    mutate(Dollar_Total = Quantity * Price) %>%
+    group_by(StockCode, Description) %>%
+    summarise(Total_Earned = sum(Dollar_Total),
+              Total_Sold = sum(Quantity)) %>%
+    arrange(desc(Total_Earned)) %>%
+    ungroup() %>%
+    mutate(Proportion_of_Revenue = scales::percent( Total_Earned/sum(Total_Earned)))
+```
+
+## Top 10 Gift Items Sold
+```{r top-10, size = "tiny"}
+top10 <- retaildf_2009 %>%
+    filter(Total_Earned> 0) %>%
+    slice_max(Total_Earned, n=10)
+top10$StockCode <- NULL
+kbl(top10, booktabs = T) %>%
+kable_styling(latex_options = "striped")
+```
+
+## Bottom 10 Gift Items Sold
+```{r bottom-10, size = "tiny"}
+bottom10 <- retaildf_2009 %>%
+    filter(Total_Earned > 0) %>%
+    slice_min(Total_Earned, n=10)
+bottom10$StockCode <- NULL
+kbl(bottom10, booktabs = T) %>%
+kable_styling(latex_options = "striped")
+```
+
+## Pre-processing 2
+```{r, size = "tiny"}
+proportion_totals <- retaildf_2009 %>%
+    mutate(daily_revenue = case_when(
+        between(Total_Earned, 1001, max(Total_Earned)) ~ "> $1000",
+        between(Total_Earned, 500, 1000) ~ ">$500",
+        between(Total_Earned, 301, 500) ~ ">$300",
+        between(Total_Earned, 201, 300) ~">$200",
+        between(Total_Earned, 101, 200) ~">$100",
+        between(Total_Earned, 51, 100) ~">$50",
+        between(Total_Earned, 25, 50) ~">=$25",
+        between(Total_Earned, 0, 24) ~"<$25",
+        TRUE ~ "loss")) %>%
+    filter(daily_revenue!="loss")
+```
+
+
+## Results: Distribution of Revenue by SKU
+```{r cumulative_proportion, , echo=FALSE, size = "tiny"}
+tab1(proportion_totals$daily_revenue, sort.group = "increasing", cum.percent = TRUE, horiz=TRUE, main = "Distribution of Daily Revenue by SKU", cex=.7, cex.names = .8)
+```
+
+# Data Management with Database
+## Why Database: An Example of Securing Data
+
+```
+# establishing the connectioon to SQL server to access db
+con <- dbConnect(odbc(), 
+  # server type
+  Driver = "SQL Server", 
+  #server name
+  Server = "ATM\\ATMSERVER",
+  # this is one of the db I want to import
+  Database = "Data607_Project3_db", 
+  UID = "Alex",
+  # password required
+  PWD = rstudioapi::askForPassword("Database password"), 
+  ort = 1433)
+}
+```
+\textcolor{red}{PWD = rstudioapi::askForPassword("Database password")}
+
+## E-R Diagram
+\tikzset{basic/.style={
+        draw,
+        rectangle split,
+        rectangle split parts=2,
+        rectangle split part fill={blue!20,white},
+        minimum width=2.5cm,
+        text width=2cm,
+        align=left,
+        font=\itshape
+    },
+    Diamond/.style={ diamond, 
+                        draw, 
+                        shape aspect=2, 
+                        inner sep = 2pt,
+                        text centered,
+                        fill=blue!10!white,
+                        font=\itshape
+                      }}
+\begin{tikzpicture}
+\node[basic] (product) 
+{product
+\nodepart{second}
+\underline{product\_id}\\
+product\_name};
+\node[basic,right=2cm of product] (invoice) 
+{invoice
+\nodepart{second}
+\underline{invoice\_id}\\
+customer\_id\\
+invoice\_date};
+\draw (product) -- (invoice) ;
+\node[basic,right=2cm of invoice] (invoiceitem) 
+{invoiceitem
+\nodepart{second}
+\underline{invoice\_id}\\
+\underline{product\_id}\\
+price\\
+quantity};
+\draw (invoice) -- (invoiceitem) ;
+\node[basic,below=1.5cm of invoice] (customer) 
+{customer
+\nodepart{second}
+\underline{customer\_id}\\
+	country};
+\draw (invoice) -- (customer) ;
+\end{tikzpicture}
+
+## Normalizing 
+### A set of normalized tables
+Customer, product, invoice, and invoiceitem tables
+
+### An efficient way to storing data 
+Easy for data maintenance and upgrade
+
+### A secured way to access data
+Control access to data with password
+
+## An Example: The customer table
+```{r}
+varKeep <- c("Customer ID", "Country")
+customerTable <- 
+  retaildf[unique(retaildf$`Customer ID`), varKeep]
+names(customerTable) <- c("CustomerID", "Country")
+customerTable <- customerTable %>% 
+  drop_na(CustomerID) %>%
+  arrange(desc(CustomerID))
+```
+
+
