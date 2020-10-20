@@ -10,8 +10,6 @@ output:
     toc: yes
     keep_tex: yes
     slide_level: 2
-  ioslides_presentation: default
-  slidy_presentation: default
 header-includes:
 - \usepackage{tikz}
 - \usetikzlibrary{positioning,shapes.multipart,shapes}
@@ -28,7 +26,6 @@ header-includes:
 - \usepackage{threeparttablex}
 - \usepackage[normalem]{ulem}
 - \usepackage{makecell}
-
 ---
 
 ```{r setup, include=FALSE}
@@ -42,20 +39,20 @@ knitr::knit_hooks$set(chunk = function(x, options) {
 ## Who Presents What
 \textbf{DH Kim}: Data Acquisition from Web
 
-- Motivation, \textcolor{red}{Gift shop business}, \textcolor{red}{How to Import Excel Data from Web}, Data Structure
+- Motivation, \textcolor{red}{Gift shop business}, \textcolor{red}{How to import Excel data from web}, Data structure
 
 Cassie Boylan: Revenue Analysis from Invoices Data
 
-- An Online Gift Shop Retailer, Pre-processing Data, Top 10 and Bottom 10 Gift Items Sold, Results of Analysis
+- An Online gift shop retailer, Pre-processing data, Top 10 and bottom 10 gift items sold, Results of analysis
 
 Alexis Mekueko: Data Management with Database
 
-- Why Database?: Securing Data, Theoretical E-R Diagram, Normalizing: The Customer Table 
+- Why database?: securing data, Theoretical E-R diagram, Normalizing: The customer table 
 
 # Data Acquisition from Web
 ## Motivation
 
-### Recent crisis of retailer stores
+### Recent crisis of retail stores
 ### Linking business-related activities to real-world data 
 
 \vspace{1em}
