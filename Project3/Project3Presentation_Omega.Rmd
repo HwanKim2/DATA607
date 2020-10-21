@@ -288,4 +288,45 @@ customerTable <- customerTable %>%
   arrange(desc(CustomerID))
 ```
 
+## A Sample Code for DB 
+\tiny
+````
+Script for SelectTopNRows command from SSMS
+SELECT TOP (1000000) [NoName]
+      ,[Invoice]
+      ,[StockCode]
+      ,[Description]
+      ,[Quantity]
+      ,[InvoiceDate]
+      ,[Price]
+      ,[CustomerID]
+      ,[Country]
+  FROM [Data607_Project3_db].[dbo].[retail_sheet_2009]
 
+SELECT * FROM [Data607_Project3_db].[dbo].[retail_sheet_2009];
+
+delete from dbo.retail_sheet_2009
+  where isnull([dbo].[retail_sheet_2009].[InvoiceDate],'')='';  
+--use this case to check all the column since there aren't many
+delete from dbo.retail_sheet_2009 where Country is null or 
+Description is null or StockCode is null or Invoice is null or 
+Quantity is null or InvoiceDate is null or Price is null;
+````
+
+## A Sample Code for DB (continued)
+\tiny
+````
+ALTER TABLE dbo.retail_sheet_2009
+  DROP COLUMN NoName;
+
+CREATE TABLE InvoiceDetail (
+    InvoiceNumber varchar(50),
+	StockNumber varchar(50),
+   	ItemPrice float,
+	Quantity float
+	);
+
+INSERT INTO InvoiceDetail (InvoiceNumber, StockNumber, Quantity, ItemPrice)
+SELECT DISTINCT Invoice, StockCode, Quantity, Price
+FROM    retail_sheet_2009;
+````
