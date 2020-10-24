@@ -1,0 +1,60 @@
+---
+title: "DATA607: Week 9 Assignment"
+author: "DH Kim"
+date: October 24, 2020
+output: html_document
+---
+### Overview
+In this Assignment, I obtain from [the New York Times Developer API website](https://developer.nytimes.com/apis) data on "most viewed articles" and "most shared articles" for the last seven days.
+
+### Loading Packages
+```{r load-packages, message=FALSE}
+library(httr)
+library(jsonlite)
+library(tidyverse)
+library(kableExtra)
+library(DT)
+```
+
+### Most Shared Articles
+The website provides API keys (See instructions in [Get Started](https://developer.nytimes.com/get-started) of the website) to get data. The GET() function in the httr library returns a response named *most_shared* whose content, as shown, is in JSON format. 
+```{r}
+nytd_most_shared_URL <- 
+  "https://api.nytimes.com/svc/mostpopular/v2/shared/7/facebook.json?api-key=HUKJdm0PwgZd3c4mVStWWbIqbRObpRC8"
+most_shared <- GET(nytd_most_shared_URL)
+most_shared
+http_status(most_shared)
+#headers(most_shared)
+```
+
+The fromJSON() and data.frame() functions are used to convert the response into a dataframe. It has 22 columns for the 20 articles which most viewed for the last 7 days. Among other things, we can see article titles. 
+```{r}
+#most_shared$content
+#content(most_shared, "raw")
+#content(most_shared, "text")
+most_shared_JSON <- fromJSON(content(most_shared, "text"))
+most_shared_JSON$results$title
+most_shared_df <- data.frame(most_shared_JSON$`results`)
+glimpse(most_shared_df)
+most_shared_df[,c("title")] %>%
+  kbl() %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+  
+
+```
+
+### Most Viewed Articles
+Below is the most viewed articles from the last 7 days using the same API key.
+```{r}
+nytd_most_view_URL <- "https://api.nytimes.com/svc/mostpopular/v2/viewed/7.json?api-key=HUKJdm0PwgZd3c4mVStWWbIqbRObpRC8"
+most_viewed <- GET(nytd_most_view_URL)
+most_viewed_JSON <- fromJSON(content(most_viewed, "text"))
+most_viewed_df <- data.frame(most_viewed_JSON$`results`)
+most_viewed_df$title
+```
+
+### Findings and Conclusions
+I get data on articles from New York Times using API key that they provides. To do that, R provides the httr library and the GET() function in it. The most shared (in facebook) articles are most viewed articles are imported into data frame. Election-related articles are listed on top along with coronavirus-related articles.    
+
+
+
