@@ -52,9 +52,20 @@ most_viewed_JSON <- fromJSON(content(most_viewed, "text"))
 most_viewed_df <- data.frame(most_viewed_JSON$`results`)
 most_viewed_df$title
 ```
+### Analysis
+Which sections are the most and the least viewed and shared?
+```{r}
+most_df <- rbind(most_shared_df, most_viewed_df)
+most_df %>% 
+  count(section) %>% 
+  mutate (phat = n/sum(n)) %>% 
+  arrange(desc(n))
+ggplot(most_df, aes(x = section)) +
+geom_bar() 
+```
 
 ### Findings and Conclusions
-I get data on articles from New York Times using API key that they provides. To do that, R provides the httr library and the GET() function in it. The most shared (in facebook) articles are most viewed articles are imported into data frame. Election-related articles are listed on top along with coronavirus-related articles.    
+I get data on articles from New York Times using API key that they provides. To do that, R provides the httr library and the GET() function in it. The most shared (in facebook) articles are most viewed articles are imported into data frame. Election-related articles are listed on top along with coronavirus-related articles. The U.S. section is the most viewed and shared and the technology and food sections are the least.   
 
 
 
