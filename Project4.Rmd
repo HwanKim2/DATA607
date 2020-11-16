@@ -1,0 +1,166 @@
+---
+title: "Project 4"
+author: "DH Kim"
+date: "`r Sys.Date()`"
+output: openintro::lab_report
+
+---
+
+```{r load-packages, message=FALSE}
+
+```
+
+### Introduction
+In this project, I am concerned with spam classification with text datafiles of emails. Document classification are well documented with Python [see @Birdetal2009]. In R, there are packages specific for natural language processing including tidytext, tm (textmining), quanteda (quantitative analysis of textual data), text2vec, and caret. @Aggarwal2018 is a textbook-level discussion of this topic. This project uses @SilgeRobinson2020's tidytext in R.
+
+### Close Looking at Data
+Data from [Apache SpamAssassin](https://spamassassin.apache.org/old/publiccorpus/), Apache Software Foundation, of year 2003 are text files with unique file extensions as shown below. Each file contains one email and files are stored in different directories of spam, easy spam, and hard spam.  
+
+```{r}
+spamfiles <- list.files("./spam/")
+easyhamfiles <- list.files("./easy_ham/")
+hardhamfiles <- list.files("./hard_ham/")
+```
+
+```{r}
+spamfiles[1:5]
+#easyhamfiles[1:5]
+#hardhamfiles[1:5]
+```
+With writeLines() and readLines() functions, we can see the content of each email. Examples of spam and ham emails are as follows:
+```{r}
+#file.show(paste0("./spam/",spamfiles[1]))
+writeLines(readLines(paste0("./spam/",spamfiles[3]), 30))
+```
+ham is like this:
+```{r}
+writeLines(readLines(paste0("./easy_ham/",easyhamfiles[10]), 60))
+```
+
+### Text analysis: Wordcloud
+I use @SilgeRobinson2020's tidytext and then wordcloud analysis for spam, easy ham, and hard hams.
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(tidytext)
+```
+
+```{r}
+all_spams <- list.files("./spam/")
+# dataframe with filename and word
+all_tidy_spams <- 
+  map_dfr(all_spams, ~ tibble(txt = read_file(paste0("./spam/",.x))) %>%   
+  mutate(filename = basename(.x)) %>%
+  unnest_tokens(word, txt))
+```
+
+```{r message=FALSE, warning=FALSE}
+library(wordcloud)
+
+all_tidy_spams %>%
+  anti_join(stop_words) %>%
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 200, colors=brewer.pal(8, "Dark2")))
+```
+
+```{r warning=FALSE}
+all_easyhams <- list.files("./easy_ham/")
+# dataframe with filename and word
+all_tidy_easyhams <- 
+  map_dfr(all_easyhams, ~ tibble(txt = read_file(paste0("./easy_ham/",.x))) %>%   
+            mutate(filename = basename(.x)) %>%
+            unnest_tokens(word, txt))
+
+all_tidy_easyhams %>%
+  anti_join(stop_words) %>%
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 200, colors=brewer.pal(8, "Dark2")))
+```
+
+```{r warning=FALSE}
+all_hardhams <- list.files("./hard_ham/")
+
+all_tidy_hardhams <- 
+  map_dfr(all_hardhams, ~ tibble(txt = read_file(paste0("./hard_ham/",.x))) %>%   
+            mutate(filename = basename(.x)) %>%
+            unnest_tokens(word, txt))
+
+all_tidy_hardhams %>%
+  anti_join(stop_words) %>%
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 200, colors=brewer.pal(8, "Dark2")))
+```
+
+A dataframe can be constructed as follows:
+
+```{r}
+all_tidy_spams <- cbind(type = "spam", all_tidy_spams)
+all_tidy_easyhams <- cbind(type = "easyham", all_tidy_easyhams)
+all_tidy_hardhams <- cbind(type = "hardham", all_tidy_hardhams)
+
+names(all_tidy_easyhams) <- names(all_tidy_spams)
+all_emails <- rbind(all_tidy_spams, all_tidy_easyhams)
+names(all_tidy_hardhams) <- names(all_emails)
+all_emails <- rbind(all_emails, all_tidy_hardhams)
+```
+
+### Workflow
+
+Classification for text has its own specific pre-processing and dataframe to use machine learning classifiers. The workflow is as follows:
+
+(1) Divide data into training data and test data
+
+(2) Convert data from text format into corpus including information on document
+
+(2) Build document term matrix
+
+(3) Choose and train classifiers
+
+(4) Evaluation classifiers using test data
+
+### References
+
+---
+references:
+- type: book
+  id: SilgeRobinson2020
+  author:
+  - family: Silge
+    given: Julia
+  - family: Robinson
+    given: David 
+  issued:
+    date-parts:
+    - - 2020
+  title: 'Text Mining with R: A Tidy Approach'
+  publisher: "O'Reilly Media"
+  URL: 'https://www.tidytextmining.com/'
+
+- type: book
+  id: Birdetal2009
+  author:
+  - family: Bird
+    given: Steven
+  - family: Klein
+    given: Ewan
+  - family: Loper
+    given: Edward
+  issued:
+    date-parts:
+    - - 2009
+  title: 'Natural Language Processing with Python: Analyzing Text with the Natural Language Toolkit'
+  publisher: "O'Reilly Media"
+  URL: 'http://www.nltk.org/book/'
+  
+- type: book
+  id: Aggarwal2018
+  author:
+  - family: Aggarwal
+    given: Charu C
+  issued:
+    date-parts:
+    - - 2018
+  title: 'Machine Learning for Text'
+  publisher: "Springer"
+  
+...
