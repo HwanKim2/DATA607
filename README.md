@@ -40,7 +40,14 @@ DATA 607 weekly assignments and projects
   + books.xml
   + books.json
 
-* Project 3: (Group project)
+* Project 3: (Group project, See the folder)
 
+* Week 9 Assignment.Rmd: API
 
+* Week 10 Assignment.Rmd: Text Analysis (Sentiment Analysis)
 
+* Project4.Rmd: Intro to Document Classification
+
+* Project 5 (Final) inclduing Intro to AWS (Amazon Web Services)
+
+End. 
