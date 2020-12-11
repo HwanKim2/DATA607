@@ -71,7 +71,7 @@ https://rpubs.com/DH3Kim/Week10Assignment
 
 https://rpubs.com/DH3Kim/projectfour
 
-* Final Project (Group Project) including Intro to AWS (Amazon Web Services)
+* Final Project (Group Project) including Intro to AWS Cloud Computing
   + IntroAWS.Rmd
   + IntroAWS.pdf
   + Screenshot_RSudio_AWS.png
