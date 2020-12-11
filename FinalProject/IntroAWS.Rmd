@@ -3,7 +3,7 @@ title: "Introduction to AWS"
 subtitle: "Appendix of Final Project"
 author: "Alexis Mekueko and DH Kim"
 date: "`r Sys.Date()`"
-output: html_document
+output: pdf_document
 ---
 
 ```{r load-packages, echo=FALSE, warning=FALSE, message=FALSE}
@@ -38,6 +38,12 @@ https://aws.amazon.com/free/?all-free-tier.sort-by=item.additionalFields.SortRan
 
 - Information on credit card required 
 - There are three different types of free offers
+
+AWS provides usage information. Below is an example. It shows that the Free Tier usage limit is 750 hours per month for Amazon cloud computing and it used 72.8%, 546 hours.  
+
+```{r out.width = '100%'}
+knitr::include_graphics("AWSUsageInformation.png")
+```
 
 ### Creating an Amazon EC2 key pair (optional)
 
